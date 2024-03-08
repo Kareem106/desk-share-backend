@@ -8,24 +8,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 mongoose
-  .connect(process.env.DB_URL)
+  .connect(
+    process.env.DB_URL ||
+      "mongodb+srv://admin:L8op2Lvy3MuuO6FS@deskshare.tiecuf2.mongodb.net/deskshare"
+  )
   .then((res) => {
     console.log("Conneted to Database");
-    app.listen(process.env.PORT || 3000);
+    app.listen(process.env.PORT || 5000);
   })
   .catch((err) => console.log(err));
 
 app;
 app.use("/auth", authRoute);
-// app.get("/country", async (req, res) => {
-//   try {
-//     // await Country.findById("65e9b518583cfabbd459bfe3")
-//     //   .then((res) => console.log(res))
-//     //   .catch((err) => console.log(err));
-//     await Country.create({ name: "egypt" })
-//       .then((res) => console.log(res))
-//       .catch((err) => console.log(err));
-//   } catch (err) {
-//     console.log(err);
-//   }
-// });
