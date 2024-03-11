@@ -21,6 +21,7 @@ const country_get_details = async (req, res) => {
     }
     throw Error("invalid id");
   } catch (err) {
+    console.log(err);
     res.status(400).json({ error: "invalid id" });
   }
 };
