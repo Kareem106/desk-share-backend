@@ -17,6 +17,7 @@ const country_get_details = async (req, res) => {
       const country = await Country.findById(id);
       if (country) {
         res.json(country);
+        return;
       }
     }
     throw Error("invalid id");
