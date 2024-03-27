@@ -23,7 +23,7 @@ const country_get_details = async (req, res) => {
     throw Error("invalid id");
   } catch (err) {
     console.log(err);
-    res.status(400).json({ error: "invalid id" });
+    res.status(404).json({ error: "invalid id" });
   }
 };
 const countries_post = (req, res) => {};
@@ -47,7 +47,7 @@ const cities_get = async (req, res) => {
     const error = err.message.includes("Cast to ObjectId")
       ? "invalid id format"
       : err.message;
-    res.status(400).json({ error });
+    res.status(error === "invalid id format" ? 400 : 404).json({ error });
   }
 };
 const cities_post = (req, rest) => {};
