@@ -1,22 +1,34 @@
 const jwt = require("jsonwebtoken");
-const apiAuth = (req, res, next) => {
+const apiAuth = async (req, res, next) => {
   const token = req.headers["x-api-key"];
-  if (token) {
-    jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
-      if (err) {
-        console.log(err.message);
-        res.json({ message: "unautharized" });
-      } else {
-        if (decodedToken.api_key === (process.env.API_KEY || "API-KEY")) {
-          console.log("authorized");
-          next();
-        } else {
-          res.json({ message: "unautharized" });
-        }
+  // if (token) {
+  //   jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
+  //     if (err) {
+  //       console.log(err.message);
+  //       res.status(401).json({ message: "unautharized" });
+  //     } else {
+  //       if (decodedToken.api_key === (process.env.API_KEY || "API-KEY")) {
+  //         console.log("authorized");
+  //         next();
+  //       } else {
+  //         res.status(401).json({ message: "unautharized" });
+  //       }
+  //     }
+  //   });
+  // } else {
+  //   res.status(401).json({ message: "unautharized" });
+  // }
+  try {
+    if (token) {
+      const decodedToken = jwt.verify(token, process.env.SECRET);
+      if(decodedToken.api_key === process.env.API_KEY){
+        next();
+        return;
       }
-    });
-  } else {
-    res.json({ message: "unautharized" });
+    }
+    throw Error();
+  } catch (err) {
+    res.status(401).json({ message: "unautharized" });
   }
 };
 module.exports = apiAuth;

@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
       message: "Invalid city",
     },
   },
+  role: {
+    type: String,
+    default: "user",
+  },
 });
 
 //hashing password
