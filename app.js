@@ -1,5 +1,7 @@
 require("module-alias/register");
 const express = require("express");
+const helmet = require("helmet");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const apiAuth = require("@middlewares/apiAuth.middleware.js");
 const app = express();
@@ -7,9 +9,13 @@ const authRoute = require("@routes/auth.routes.js");
 const apiRoute = require("@routes/api.routes.js");
 const adminRoute = require("@routes/admin.routes.js");
 const workspaceRoute = require("@routes/workspace.routes.js");
+const corsOpt = {
+  origin: "*",
+};
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+app.use(helmet());
+app.use(cors(corsOpt));
 // let imagekit = new ImageKit({
 //   publicKey: "public_bdusYXMWygCXpmEalTE0+M1MJxY=",
 //   privateKey: "private_LOSe7q4gDxiFIV1RxivqmRyUQwo=",
