@@ -28,7 +28,7 @@ const apiAuth = async (req, res, next) => {
     }
     throw Error();
   } catch (err) {
-    res.status(401).json({ message: "unautharized" });
+    res.status(401).json({ message: "unautharized : invalid api key" });
   }
 };
 module.exports = apiAuth;

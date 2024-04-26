@@ -9,6 +9,8 @@ const authRoute = require("@routes/auth.routes.js");
 const apiRoute = require("@routes/api.routes.js");
 const adminRoute = require("@routes/admin.routes.js");
 const workspaceRoute = require("@routes/workspace.routes.js");
+const reservationRoute = require("@routes/reservation.routes.js");
+const protectRouting = require("@middlewares/protectRouting.middleware.js");
 const corsOpt = {
   origin: "*",
 };
@@ -33,8 +35,9 @@ mongoose
 app.use(apiAuth);
 app.use("/auth", authRoute);
 app.use("/api", apiRoute);
-app.use("/workspaces", workspaceRoute);
+app.use("/workspaces",protectRouting, workspaceRoute);
 app.use("/admin", adminRoute);
+app.use("/reservations", protectRouting, reservationRoute);
 //dropbox
 // app.post("/upload", upload.single("file"), async (req, res) => {
 //   const file = req.file;
