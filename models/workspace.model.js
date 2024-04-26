@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Country = require("@models/country.model.js");
 const City = require("@models/city.model.js");
+const Admin = require("@models/admin.model.js");
 const workspaceSchema = mongoose.Schema({
   name: {
     type: String,
@@ -52,9 +53,9 @@ const workspaceSchema = mongoose.Schema({
   admin: {
     type: mongoose.Schema.Types.ObjectId,
     required: [true, "admin is required"],
+    ref: "Admin",
   },
 });
-
 const WorkSpace = mongoose.model("workspaces", workspaceSchema);
 
 module.exports = WorkSpace;

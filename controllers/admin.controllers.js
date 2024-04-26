@@ -33,9 +33,7 @@ let imagekit = new ImageKit({
 // };
 //create token
 const createToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.SECRET || "SECRET", {
-    expiresIn: "7d",
-  });
+  return jwt.sign({ id, role }, process.env.SECRET || "SECRET");
 };
 
 //handle signup errors

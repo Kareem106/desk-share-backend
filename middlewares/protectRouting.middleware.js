@@ -10,24 +10,19 @@ const protectRouting = async (req, res, next) => {
         decodedToken.role === "admin" ||
         decodedToken.role === "super_admin"
       ) {
-        const admin = await Admin.findById(decodedToken.id);
-        if (admin) {
-          next();
-          return;
-        }
+        req.body.admin = decodedToken.id;
       } else {
-        const user = await User.findById(decodedToken.id);
-        if (user) {
-          console.log(user);
-          next();
-          return;
-        }
+        req.body.user_id = decodedToken.id;
       }
+      next();
+      return;
     }
     throw Error("unauthorized");
   } catch (err) {
     console.log(err);
-    res.status(401).json({ message: "unauthorized" });
+    res.status(401).json({
+      message: "unauthorized : don't have permission to access this route",
+    });
   }
 };
 module.exports = protectRouting;
