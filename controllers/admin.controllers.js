@@ -135,61 +135,101 @@ const admin_workspaces_post = async (req, res) => {
     });
   }
 };
+
+const workspaceResHandler = (workspace) => {
+  return {
+    _id: workspace._id,
+    name: workspace.name,
+    country: {
+      _id: workspace.country[0]._id,
+      name: workspace.country[0].name,
+    },
+    city: {
+      _id: workspace.city[0]._id,
+      name: workspace.city[0].name,
+    },
+    address: workspace.address,
+    cover: workspace.cover,
+  };
+};
 const admin_workspaces_get = async (req, res) => {
   const admin_id = req.body.admin;
   try {
-    const admin = await Admin.findById(admin_id);
-    const workspaces = await WorkSpace.find({ _id: { $in: admin.workspaces } });
-    if (workspaces && workspaces.length > 0) {
-      const response = workspaces.map((workspace) => {
-        return {
-          _id: workspace._id,
-          name: workspace.name,
-        };
+    const documents = await WorkSpace.aggregate([
+      {
+        $match: { admin: new mongoose.Types.ObjectId(admin_id) },
+      },
+      {
+        $lookup: {
+          from: "countries",
+          localField: "country",
+          foreignField: "_id",
+          as: "country",
+        },
+      },
+      {
+        $lookup: {
+          from: "cities",
+          localField: "city",
+          foreignField: "_id",
+          as: "city",
+        },
+      },
+    ]);
+    if (documents.length > 0) {
+      const response = documents.map((doc) => {
+        console.log(doc);
+        return workspaceResHandler(doc);
       });
-      res.json(response);
+      res.json({
+        workspaces: response,
+      });
+    } else {
+      throw Error("could't found workspaces");
     }
-    throw Error("there is no workspaces");
   } catch (err) {
     console.log(err);
-    res.status(404).json({
-      error: err.message,
-      message: "admin did't create any workspaces",
-    });
+    res.status(404).json({ error: err.message });
   }
 };
 const admin_workspace_details = async (req, res) => {
-  const id = req.params.id;
+  const workspace_id = req.params.id;
   const admin_id = req.body.admin;
   try {
-    const admin = await Admin.findById(admin_id);
-    if (admin.workspaces.includes(id)) {
-      const workspace = await WorkSpace.findById(id);
-      if (workspace) {
-        const country = await Country.findById(workspace.country);
-        const city = await City.findById(workspace.city);
-        const response = {
-          _id: workspace._id,
-          name: workspace.name,
-          country: {
-            _id: country._id,
-            name: country.name,
-          },
-          city: {
-            _id: city._id,
-            name: city.name,
-          },
-          address: workspace.address,
-          cover: workspace.cover,
-        };
-        res.json(response);
-        return;
-      }
+    const document = await WorkSpace.aggregate([
+      {
+        $match: {
+          $and: [
+            { _id: new mongoose.Types.ObjectId(workspace_id) },
+            { admin: new mongoose.Types.ObjectId(admin_id) },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "countries",
+          localField: "country",
+          foreignField: "_id",
+          as: "country",
+        },
+      },
+      {
+        $lookup: {
+          from: "cities",
+          localField: "city",
+          foreignField: "_id",
+          as: "city",
+        },
+      },
+    ]);
+    if (document.length > 0) {
+      const response = workspaceResHandler(document[0]);
+      res.json(response);
+    } else {
+      throw Error("count't find workspace");
     }
-    throw Error("could't find workspace data");
   } catch (err) {
-    console.log(err);
-    res.status(404).json({ error: err.message, message: "not found" });
+    res.status(404).json({ error: err.message });
   }
 };
 const admin_workspace_cover_post = async (req, res) => {

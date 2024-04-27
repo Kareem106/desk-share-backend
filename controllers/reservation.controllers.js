@@ -9,7 +9,12 @@ const user_reservation_post = async (req, res) => {
       workspace_id,
       date,
     });
-    res.status(201).json({ status: "created successfully" });
+    res.status(201).json({
+      message: "created successfully",
+      _id: reservation._id,
+      date: reservation.date,
+      status: reservation.status,
+    });
   } catch (err) {
     console.log(err);
     const errors = {};
@@ -40,12 +45,11 @@ const user_reservation_get = async (req, res) => {
         reservations: reservations.map((e) => ({
           _id: e._id,
           date: e.date,
+          status: e.status,
           workspace: (function (workspace) {
             return {
               _id: workspace?._id,
               name: workspace?.name,
-              country: workspace?.country,
-              city: workspace?.city,
               address: workspace?.address,
               cover: workspace?.cover,
             };

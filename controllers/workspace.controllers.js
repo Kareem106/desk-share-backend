@@ -12,8 +12,6 @@ let imagekit = new ImageKit({
 
 const workspaceResHandler = async (workspace) => {
   try {
-    // const country = await Country.findById(workspace.country);
-    // const city = await City.findById(workspace.city);
     const response = {
       _id: workspace._id,
       name: workspace.name,
@@ -36,6 +34,7 @@ const workspaceResHandler = async (workspace) => {
 const workspaces_get = async (req, res) => {
   const search = req.query.q ? req.query.q.trim() : null;
   const limit = req.query.limit ? Number(req.query.limit) || 10 : 10;
+  const skip = req.query.skip ? Number(req.query.skip) || 0 : 0;
   try {
     // const workspaces =
     //   search && search.length > 0
@@ -61,6 +60,7 @@ const workspaces_get = async (req, res) => {
         $facet: {
           total: [{ $count: "total" }],
           documents: [
+            { $skip: skip },
             {
               $limit: limit,
             },
@@ -94,6 +94,7 @@ const workspaces_get = async (req, res) => {
       const response = {
         workspaces: workspacesRes,
         limit: limit,
+        skip: skip,
         total: total,
       };
       res.json(response);
