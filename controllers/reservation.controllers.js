@@ -62,4 +62,88 @@ const user_reservation_get = async (req, res) => {
     res.status(404).json({ error: err.message });
   }
 };
-module.exports = { user_reservation_post, user_reservation_get };
+const admin_reservations_get = async (req, res) => {
+  const id = req.params.id;
+  const status = req.query.status ? req.query.status.trim() : null;
+  try {
+    const documents = await Reservation.aggregate([
+      {
+        $match: {
+          $and: [
+            { workspace_id: new mongoose.Types.ObjectId(id) },
+            { status: status ? status : /^/ },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "workspaces",
+          localField: "workspace_id",
+          foreignField: "_id",
+          as: "workspace",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+    ]);
+    if (documents) {
+      const reservations = documents.map((e) => ({
+        _id: e._id,
+        date: e.date,
+        status: e.status,
+        workspace: {
+          _id: e.workspace[0]._id,
+          name: e.workspace[0].name,
+        },
+        user: {
+          _id: e.user[0]._id,
+          name: e.user[0].name,
+        },
+      }));
+      res.json({
+        reservations,
+      });
+    }
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+};
+const admin_reservation_accept = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const document = await Reservation.findByIdAndUpdate(id, {
+      status: "accepted",
+    });
+    if (document) {
+      res.status(204).send();
+    }
+  } catch (err) {
+    res.status(404).json({ error: "invalid id" });
+  }
+};
+const admin_reservation_reject = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const document = await Reservation.findByIdAndUpdate(id, {
+      status: "rejected",
+    });
+    if (document) {
+      res.status(204).send();
+    }
+  } catch (err) {
+    res.status(404).json({ error: "invalid id" });
+  }
+};
+module.exports = {
+  user_reservation_post,
+  user_reservation_get,
+  admin_reservations_get,
+  admin_reservation_accept,
+  admin_reservation_reject,
+};
