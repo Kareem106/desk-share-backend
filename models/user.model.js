@@ -66,17 +66,23 @@ const userSchema = new mongoose.Schema(
 );
 
 //hashing password
-async function hashPassword(next) {
-  const update = this.getUpdate ? this.getUpdate() : this;
-  console.log(update);
+async function hashNewPassword(next) {
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+}
+async function hashUpdatePassword(next) {
+  const update = this.getUpdate();
   if (update.password) {
     const salt = await bcrypt.genSalt();
     update.password = await bcrypt.hash(update.password, salt);
   }
   next();
 }
-userSchema.pre("save", hashPassword);
-userSchema.pre("findOneAndUpdate", hashPassword);
+userSchema.pre("save", hashNewPassword);
+userSchema.pre("findOneAndUpdate", hashUpdatePassword);
 
 // user login static function
 userSchema.statics.login = async function (email, password) {

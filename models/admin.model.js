@@ -32,17 +32,23 @@ const adminSchema = mongoose.Schema(
     },
   }
 );
-async function hashPassword(next) {
-  const update = this.getUpdate ? this.getUpdate() : this;
-  console.log(update);
+async function hashNewPassword(next) {
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt();
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+}
+async function hashUpdatePassword(next) {
+  const update = this.getUpdate();
   if (update.password) {
     const salt = await bcrypt.genSalt();
     update.password = await bcrypt.hash(update.password, salt);
   }
   next();
 }
-adminSchema.pre("save", hashPassword);
-adminSchema.pre("findOneAndUpdate", hashPassword);
+adminSchema.pre("save", hashNewPassword);
+adminSchema.pre("findOneAndUpdate", hashUpdatePassword);
 
 adminSchema.statics.login = async function (email, password) {
   const admin = await this.findOne({ email });

@@ -269,10 +269,10 @@ const user_favorites_get = async (req, res) => {
         },
       },
     ]);
-    if (!document) {
-      throw Error("invalid user id");
-    }
-    res.json(document);
+    console.log(document);
+    const response = document ? document : { favorites: [] };
+    console.log(response);
+    res.json(response);
   } catch (err) {
     console.log(err);
     res.status(404).json({ status: "false", message: err.message });
