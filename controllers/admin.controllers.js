@@ -93,7 +93,34 @@ const admin_signup_post = async (req, res) => {
     res.json({ status: "false", message: "failed to signup", errors });
   }
 };
-
+const admin_profile_put = async (req, res) => {
+  const { name, email, password, admin } = req.body;
+  try {
+    const update = {
+      name,
+      email,
+      password,
+    };
+    const document = await Admin.findByIdAndUpdate(admin, update, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(201).json({
+      status: "true",
+      message: "profile updated",
+      admin: {
+        name: document.name,
+        email: document.email,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    const errors = errHandler(err);
+    res
+      .status(400)
+      .json({ status: "false", message: "failed to update profile", errors });
+  }
+};
 const admin_workspaces_post = async (req, res) => {
   let { name, country, city, address, admin } = req.body;
   try {
@@ -104,12 +131,11 @@ const admin_workspaces_post = async (req, res) => {
       address,
       admin,
     });
-    admin = await Admin.findById(admin);
-    admin.workspaces.push(workspace._id);
-    admin.save();
     country = await Country.findById(workspace.country);
     city = await City.findById(workspace.city);
     const response = {
+      status: "true",
+      message: "workspace created",
       _id: workspace._id,
       name: workspace.name,
       country: {
@@ -122,8 +148,6 @@ const admin_workspaces_post = async (req, res) => {
       },
       address: workspace.address,
     };
-    response.status = "true";
-    response.message = "workspace created";
     res.status(201).json(response);
   } catch (err) {
     const errors = errHandler(err);
@@ -274,4 +298,5 @@ module.exports = {
   admin_workspaces_get,
   admin_workspace_details,
   admin_workspace_cover_post,
+  admin_profile_put,
 };

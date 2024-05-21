@@ -10,6 +10,7 @@ const {
   admin_workspaces_get,
   admin_workspace_details,
   admin_workspace_cover_post,
+  admin_profile_put,
 } = require("@controllers/admin.controllers.js");
 const {
   admin_reservations_get,
@@ -19,6 +20,7 @@ const {
 const router = Router();
 router.post("/login", upload.none(), admin_login_post);
 router.post("/signup", upload.none(), admin_signup_post);
+router.put("/profile", [upload.none(), protectRouting], admin_profile_put);
 router.get("/workspaces", protectRouting, admin_workspaces_get);
 router.get("/workspaces/:id", protectRouting, admin_workspace_details);
 router.post(
@@ -46,4 +48,5 @@ router.put(
   protectRouting,
   admin_reservation_reject
 );
+
 module.exports = router;
