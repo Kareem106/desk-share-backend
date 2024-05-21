@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const apiAuth = require("@middlewares/apiAuth.middleware.js");
 const app = express();
 const authRoute = require("@routes/auth.routes.js");
+const profileRoute = require("@routes/profile.routes.js");
+const favoritesRoute = require("@routes/favorites.routes.js");
 const apiRoute = require("@routes/api.routes.js");
 const adminRoute = require("@routes/admin.routes.js");
 const workspaceRoute = require("@routes/workspace.routes.js");
@@ -34,10 +36,13 @@ mongoose
 
 app.use(apiAuth);
 app.use("/auth", authRoute);
+app.use("/profile", profileRoute);
+app.use("/favorites", favoritesRoute);
 app.use("/api", apiRoute);
-app.use("/workspaces",protectRouting, workspaceRoute);
+app.use("/workspaces", protectRouting, workspaceRoute);
 app.use("/admin", adminRoute);
 app.use("/reservations", protectRouting, reservationRoute);
+
 //dropbox
 // app.post("/upload", upload.single("file"), async (req, res) => {
 //   const file = req.file;
