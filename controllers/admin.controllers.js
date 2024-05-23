@@ -260,7 +260,8 @@ const admin_workspace_cover_post = async (req, res) => {
   try {
     const admin = await Admin.findById(req.body.admin);
     const workspace_id = req.params.id;
-    if (admin.workspaces.includes(workspace_id)) {
+    const workspace = await WorkSpace.findById(workspace_id);
+    if (workspace.admin.toString() === admin._id.toString()) {
       const file = req.file;
       imagekit.upload(
         {
@@ -277,7 +278,6 @@ const admin_workspace_cover_post = async (req, res) => {
             res
               .status(201)
               .json({ message: "file uploaded", imgUrl: result.url });
-            const workspace = await WorkSpace.findById(workspace_id);
             workspace.cover = result.url;
             workspace.save();
           }
